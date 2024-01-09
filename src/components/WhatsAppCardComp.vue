@@ -1,10 +1,14 @@
 <script>
 import { store } from "../data/store";
+import ContactsCardComponent from "./ContactsCardComponent.vue";
 import ChatCardComponent from "./ChatCardComponent.vue";
+import TextareaComponent from "./TextareaComponent.vue";
 export default {
   name: "WhatsAppCard",
   components: {
+    ContactsCardComponent,
     ChatCardComponent,
+    TextareaComponent,
   },
   data() {
     return {
@@ -52,7 +56,7 @@ export default {
           </div>
         </div>
         <div class="container-chats">
-          <ChatCardComponent
+          <ContactsCardComponent
             v-for="(item, index) in store.contacts"
             :dataFriends="item"
           />
@@ -61,7 +65,14 @@ export default {
       <div
         :style="getBackgroundImage(store.getImage('mine.jpg'))"
         class="active-chat"
-      ></div>
+      >
+        <div class="chat-container">
+          <ChatCardComponent />
+        </div>
+        <div class="textarea-container">
+          <TextareaComponent />
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -70,7 +81,7 @@ export default {
 @use "../styles/variables" as *;
 .whatsApp-card {
   height: 700px;
-  width: 60%;
+  width: 70%;
   border: 1px solid #000;
 
   .header-card {
@@ -168,6 +179,18 @@ export default {
     }
     .active-chat {
       width: $chat-active-width;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      .chat-container {
+        height: calc(100% - 45px);
+        padding: 12px;
+      }
+      .textarea-container {
+        height: 45px;
+        width: 100%;
+        background-color: red;
+      }
     }
   }
 }
