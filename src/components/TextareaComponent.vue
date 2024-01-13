@@ -1,12 +1,61 @@
 <script>
+import { store } from "../data/store";
+import { DateTime } from "luxon";
 export default {
   name: "TextareaComponent",
+  props: {
+    indexToSendMsg: Number,
+    sendNotification: Boolean,
+  },
+  data() {
+    return {
+      store,
+      now: DateTime.now(),
+      chatText: "",
+    };
+  },
+  methods: {
+    sendMessage() {
+      const msgData = {
+        date: this.now
+          .setLocale("it")
+          .toLocaleString(DateTime.DATETIME_SHORT_WITH_SECONDS),
+        message: this.chatText,
+        status: "sent",
+      };
+      if (this.chatText !== "") {
+        store.contacts[this.indexToSendMsg].messages.push(msgData);
+      }
+      this.chatText = "";
+      this.reciveMessage();
+    },
+    reciveMessage() {
+      setTimeout(() => {
+        const msgFromContact = {
+          date: this.now
+            .setLocale("it")
+            .toLocaleString(DateTime.DATETIME_SHORT_WITH_SECONDS),
+          message: "OK!!",
+          status: "received",
+        };
+        store.contacts[this.indexToSendMsg].messages.push(msgFromContact);
+        if (this.sendNotification) {
+          alert("Hai ricevuto un messaggio");
+        }
+      }, 1000);
+    },
+  },
 };
 </script>
 <template>
   <div>
     <i class="fa-regular fa-face-smile"></i>
-    <input type="text" placeholder="Scrivi un messaggio" />
+    <input
+      v-model="chatText"
+      @keyup.enter="sendMessage()"
+      type="text"
+      placeholder="Scrivi un messaggio"
+    />
     <i class="fa-solid fa-microphone"></i>
   </div>
 </template>

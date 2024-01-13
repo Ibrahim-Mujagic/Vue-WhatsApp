@@ -13,12 +13,50 @@ export default {
   data() {
     return {
       store,
+      chatIndex: 0,
+      textRequestActivationNtfc: "Attiva notifiche dekstop",
+      reciveNotification: false,
+      userToSearch: "",
+      userLastAcces: "",
     };
   },
   methods: {
     getBackgroundImage(image) {
       return { backgroundImage: `url('${image}')` };
     },
+    activeNotification() {
+      this.reciveNotification = !this.reciveNotification;
+      console.log(this.reciveNotification);
+      this.reciveNotification
+        ? (this.textRequestActivationNtfc = "Disativa notifiche dekstop")
+        : (this.textRequestActivationNtfc = "Attiva notifiche dekstop");
+    },
+    getUserLastAccess() {
+      const dataMessage = store.contacts[this.chatIndex].messages;
+      if (dataMessage.length > 0) {
+        const lastMsgUserStatus = dataMessage.filter(
+          (msg) => msg.status === "received"
+        );
+        console.log(lastMsgUserStatus);
+
+        if (
+          lastMsgUserStatus.length > 0 &&
+          lastMsgUserStatus[lastMsgUserStatus.length - 1].status === "received"
+        ) {
+          this.userLastAcces =
+            "Ultimo acesso:" +
+            lastMsgUserStatus[lastMsgUserStatus.length - 1].date;
+        } else {
+          this.userLastAcces = "";
+        }
+      }
+    },
+  },
+  mounted() {
+    this.getUserLastAccess();
+  },
+  updated() {
+    this.getUserLastAccess();
   },
 };
 </script>
@@ -28,7 +66,7 @@ export default {
     <div class="header-card">
       <div class="user-data">
         <div class="user-pic">
-          <img :src="store.getImage('avatar_io.jpg')" alt="" />
+          <img :src="store.getImage('avatar_io.jpg')" alt="Io" />
         </div>
         <div class="user-name">
           <h4>Sofia</h4>
@@ -36,10 +74,19 @@ export default {
       </div>
       <div class="friend-active-data">
         <div class="friend-pic-name">
-          <img :src="store.getImage('avatar_1.jpg')" alt="" />
+          <img
+            :src="
+              store.getImage(
+                'avatar' + store.contacts[chatIndex].avatar + '.jpg'
+              )
+            "
+            :alt="store.contacts[chatIndex].name"
+          />
           <div class="cont-text">
-            <h4>Michele</h4>
-            <p>Online •</p>
+            <h4>{{ store.contacts[chatIndex].name }}</h4>
+            <p>
+              {{ userLastAcces }}
+            </p>
           </div>
         </div>
       </div>
@@ -52,13 +99,24 @@ export default {
           </div>
           <div class="text-alert">
             <strong>Ricevi notifiche di nuovi messaggi!</strong>
-            <p>Attiva notifiche desktop</p>
+            <p @click="activeNotification()">
+              {{ textRequestActivationNtfc }}
+            </p>
           </div>
+        </div>
+        <div class="cont-searchbar">
+          <input
+            type="text"
+            v-model="userToSearch"
+            placeholder="Cerca un contatto"
+          />
         </div>
         <div class="container-chats">
           <ContactsCardComponent
             v-for="(item, index) in store.contacts"
             :dataFriends="item"
+            @click="chatIndex = index"
+            :searchBarContact="userToSearch"
           />
         </div>
       </div>
@@ -67,10 +125,18 @@ export default {
         class="active-chat"
       >
         <div class="chat-container">
-          <ChatCardComponent />
+          <ChatCardComponent
+            v-for="(chat, index) in store.contacts[chatIndex].messages"
+            :chatData="chat"
+            :indexMessage="index"
+            :contactIndex="chatIndex"
+          />
         </div>
         <div class="textarea-container">
-          <TextareaComponent />
+          <TextareaComponent
+            :indexToSendMsg="chatIndex"
+            :sendNotification="reciveNotification"
+          />
         </div>
       </div>
     </div>
@@ -168,12 +234,23 @@ export default {
           p {
             text-decoration: underline;
             color: #a4a3a3;
+            cursor: pointer;
           }
+        }
+      }
+      .cont-searchbar {
+        height: 40px;
+        width: 100%;
+        padding: 5px 10px;
+        input {
+          height: 100%;
+          width: 100%;
+          padding: 5px;
         }
       }
       .container-chats {
         width: 100%;
-        max-height: calc(100% - 60px);
+        max-height: calc(100% - 100px);
         overflow-y: auto;
       }
     }

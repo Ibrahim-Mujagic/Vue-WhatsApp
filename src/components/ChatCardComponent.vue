@@ -1,25 +1,48 @@
 <script>
+import { store } from "../data/store";
 export default {
   name: "ChatCardComponent",
-  props: {},
+  props: {
+    chatData: Object,
+    indexMessage: Number,
+    contactIndex: Number,
+  },
   data() {
-    return {};
+    return {
+      store,
+      hideWindowVisible: true,
+    };
+  },
+  methods: {
+    deleteMessage(index) {
+      const activeMessagese = this.store.contacts[this.contactIndex].messages;
+      activeMessagese.splice(index, 1);
+    },
   },
 };
 </script>
 
 <template>
-  <div class="cloud cloud-sent">
+  <div
+    :class="{
+      ' cloud': true,
+      'cloud-sent': chatData.status === 'sent',
+      'cloud-received': chatData.status === 'received',
+    }"
+    @click="hideWindowVisible = !hideWindowVisible"
+  >
     <p class="text-message">
-      Lorem ipsum dolor sit amet consectetur adipisicing elit.
+      {{ chatData.message }}
     </p>
-    <p class="date-message-sent">10/12/2023 15:00:00</p>
-  </div>
-  <div class="cloud cloud-received">
-    <p class="text-message">
-      Lorem ipsum dolor sit amet consectetur adipisicing elit.
-    </p>
-    <p class="date-message-sent">10/12/2023 15:00:00</p>
+    <p class="date-message-sent">{{ chatData.date }}</p>
+    <div
+      :class="{
+        ' window-delete': true,
+        'd-none': hideWindowVisible,
+      }"
+    >
+      <p @click="deleteMessage(indexMessage)">Delete Message</p>
+    </div>
   </div>
 </template>
 
@@ -34,6 +57,8 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  position: relative;
+  cursor: pointer;
   &.cloud-sent {
     background-color: #d5f9ba;
     margin-left: auto;
@@ -51,6 +76,27 @@ export default {
       font-size: 0.6rem;
       max-width: 70px;
       text-align: right;
+    }
+  }
+  .window-delete {
+    background-color: white;
+    height: 60px;
+    border-radius: 10px;
+    padding: 5px;
+    position: absolute;
+    top: 110%;
+    left: 80%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    z-index: 10;
+    p {
+      color: red;
+      cursor: pointer;
+    }
+    &.d-none {
+      display: none;
     }
   }
 }

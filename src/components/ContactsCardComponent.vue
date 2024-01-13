@@ -4,6 +4,7 @@ export default {
   name: "ContactsCardComponent",
   props: {
     dataFriends: Object,
+    searchBarContact: String,
   },
   data() {
     return {
@@ -14,7 +15,15 @@ export default {
 </script>
 
 <template>
-  <div class="card">
+  <div
+    class="card"
+    v-if="
+      dataFriends.name
+        .toLowerCase()
+        .trim()
+        .includes(searchBarContact.toLowerCase().trim())
+    "
+  >
     <div class="image-person-container">
       <div class="cont-card-image">
         <img
@@ -25,13 +34,21 @@ export default {
       <div class="cont-text-person">
         <h4 class="name">{{ dataFriends.name }}</h4>
         <p class="last-msg">
-          {{ dataFriends.messages[dataFriends.messages.length - 1].message }}
+          {{
+            dataFriends.messages && dataFriends.messages.length > 0
+              ? dataFriends.messages[dataFriends.messages.length - 1].message
+              : "Nessun messaggio disponibile"
+          }}
         </p>
       </div>
     </div>
     <div class="date-message">
       <p class="time">
-        {{ dataFriends.messages[dataFriends.messages.length - 1].date }}
+        {{
+          dataFriends.messages && dataFriends.messages.length > 0
+            ? dataFriends.messages[dataFriends.messages.length - 1].date
+            : ""
+        }}
       </p>
     </div>
   </div>
